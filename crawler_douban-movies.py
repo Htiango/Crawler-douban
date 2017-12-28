@@ -3,6 +3,11 @@ import urllib.request
 import urllib.error
 import random
 import time
+from io import StringIO
+
+hds=[{'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'},\
+{'User-Agent':'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.12 Safari/535.11'},\
+{'User-Agent': 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)'}]
 
 def get_soup(url):
     plain_text = ''
@@ -35,7 +40,8 @@ def get_one_comment(item):
 
 def get_all_comment(link):
     start = 0
-    while start<=200:
+    # unsign in user can only view top 200 comments
+    while start <= 200:
         post_link = 'comments?start=' + str(start) + '&limit=20&sort=new_score&status=P&percent_type='
         url = link + post_link
         wait_time = random.random() * 3
@@ -45,6 +51,7 @@ def get_all_comment(link):
 
         items = soup.find_all('div', 'comment-item')
         get_one_comment(items[0])
+        start += 20
         break
 
 
@@ -61,23 +68,16 @@ def get_info(item):
 
     get_all_comment(link)
 
+def get_movies(url):
+    soup = get_soup(url)
 
-hds=[{'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'},\
-{'User-Agent':'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.12 Safari/535.11'},\
-{'User-Agent': 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)'}]
-
-
-url = 'https://movie.douban.com/top250?start=0&filter='
-
-soup = get_soup(url)
-
-if soup:
-    soup_ls = soup.find('ol', 'grid_view')
-    items = soup_ls.find_all('div', 'item')
-
-    get_info(items[0])
-# for item in items:
+    if soup:
+        soup_ls = soup.find('ol', 'grid_view')
+        items = soup_ls.find_all('div', 'item')
+        get_info(items[0])
 
 
 
-
+if __name__ == '__main__':
+    url = 'https://movie.douban.com/top250?start=0&filter='
+    get_movies(url)
